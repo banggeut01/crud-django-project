@@ -36,7 +36,7 @@ $ pip install -r requirments.txt
 
 `requirements.txt`에 있는 내용 설치해줌
 
-
+======================================================================
 
 ```bash
 $ django-admin startproject crud .
