@@ -698,4 +698,10 @@ article.delete()
    Article.objects.order_by('title') # title를 기준으로 오름차순 정렬
    ```
 
-   
+## 4. Admin
+
+```bash
+$ python manage.py createsuperuser
+# 만약 error가 뜬다면 migration 해줬는지 확인하기!
+```
+
