@@ -209,10 +209,11 @@ $ python manage.py migrate
   
   # 세번째 방법
   # save() 없이 바로 만들어 저장
+  # create안에 save 함수 포함 
   In [24]: Article.objects.create(title='제목4', content='내용4')
   Out[24]: <Article: Article object (4)>
-  ```
-
+```
+  
   ```shell
   # 데이터 변경하기
   
@@ -257,8 +258,8 @@ $ python manage.py migrate
   
   # db에 저장하기
   In [38]: article.save()
-  ```
-
+```
+  
   ```shell
   # db에서 삭제하기
   In [40]: article = Article.objects.get(pk=4)
@@ -274,16 +275,16 @@ $ python manage.py migrate
   Out[44]: <Article: Article object (None)>
   
   # save()하지 않아도 바로 db에 반영됨!
-  ```
-
+```
+  
   ```bash
   In [46]: Article.objects.create(title='test', content='text')
   Out[46]: <Article: Article object (5)>
   
   In [47]: Article.objects.create(title='test', content='text')
   Out[47]: <Article: Article object (6)>
-  ```
-
+```
+  
   ```shell
   # filter
   In [49]: articles = Article.objects.filter(title='test')
@@ -291,8 +292,8 @@ $ python manage.py migrate
   # QuerySet 형태로 가져옴
   In [50]: articles
   Out[50]: <QuerySet [<Article: Article object (5)>, <Article: Article object (6)>]>
-  ```
-
+```
+  
   ```shell
   # filter vs get
   # filter : 일치하는 것이 하나더라도 QuerySet라는 리스트 리턴
@@ -310,8 +311,8 @@ $ python manage.py migrate
   # 결과가 여러가지 레코드 일 때!
   In [54]: Article.objects.get(title='test')
   MultipleObjectsReturned: get() returned more than one Article -- it returned 2!
-  ```
-
+```
+  
   ```shell
   # 인덱스로 레코드 가져오기
   In [56]: Article.objects.all()[0]
@@ -332,8 +333,8 @@ $ python manage.py migrate
   Out[61]: <QuerySet [<Article: Article object (1)>, <Article: Article object (2)>, <Article: Article object (3)>]>
   
   
-  ```
-
+```
+  
   ```shell
   # query
   In [62]: Article.objects.all()[:3].query
@@ -347,8 +348,8 @@ $ python manage.py migrate
   
   In [65]: print(a.query)
   SELECT "articles_article"."id", "articles_article"."title", "articles_article"."content", "articles_article"."created_at", "articles_article"."updated_at" FROM "articles_article" WHERE "articles_article"."title" LIKE %제목% ESCAPE '\'
-  ```
-
+```
+  
   ```shell
   # ~ 포함
   In [75]: a = Article.objects.filter(content__contains='내용')
@@ -371,22 +372,22 @@ $ python manage.py migrate
   # type은 query
   In [81]: print(type(a.query))
   <class 'django.db.models.sql.query.Query'>
-  ```
-
+```
+  
   ```shell
   # shell 종료
   Ctrl + D
-  ```
-
+```
+  
   ```bash
   # models.py
   #...(중략)
   username = models.CharField(max_length=10)
   #...
-  ```
-
-  `username` 스키마에 추가해주었다.
-
+```
+  
+`username` 스키마에 추가해주었다.
+  
   ```bash
   # 설계도 
   $ python manage.py makemigrations
@@ -403,8 +404,8 @@ $ python manage.py migrate
     articles\migrations\0002_article_username.py
       - Add field username to article
   (venv)
-  ```
-
+```
+  
   ```bash
   # 설계도 반영
   $ python manage.py migrate
