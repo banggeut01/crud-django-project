@@ -21,4 +21,12 @@ def create(request):
         'article': article
     }
     # return render(request, 'articles/create.html', context)
-    return redirect('/articles/')
+    return redirect(f'/articles/{article.pk}/')
+
+def detail(request, article_pk):
+    # 단일 데이터 조회
+    article = Article.objects.get(id=article_pk)
+    context = {
+        'article': article
+    }
+    return render(request, 'articles/detail.html', context)

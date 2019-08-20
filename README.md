@@ -2,11 +2,54 @@
 
 * 가상환경 생성/실행
 
+  ```bash
+  $ python -m venv venv
+  (3.7.4)
+  
+  $ activate
+  (venv)
+  ```
+
 * `.gitignore`
+
+  * `venv/`
+  * `.vscode/`
+  * `__pycache__/`
 
 * git init
 
 * django 설치
+
+  * 설치하지 않으면 아래와 같은 에러가 뜸
+
+  ```bash
+  ImportError: Couldn't import Django. Are you sure it's installed and available on your
+  PYTHONPATH environment variable? Did you forget to activate a virtual environment?
+  (venv)
+  ```
+
+  
+
+  ```bash
+  $ pip list
+  Package    Version
+  ---------- -------
+  pip        19.0.3
+  setuptools 40.8.0
+  
+  $ pip install django django_extensions
+  
+  $ pip list
+  Package           Version
+  ----------------- -------
+  Django            2.2.4
+  django-extensions 2.2.1
+  pip               19.0.3
+  pytz              2019.2
+  setuptools        40.8.0
+  six               1.12.0
+  sqlparse          0.3.0
+  ```
 
 * requirments.txt 설청
 
@@ -58,6 +101,8 @@ from django.db import models
 # db 테이블을 정의하고,
 # 각각의 컬럼(필드) 정의
 class Article(models.Model):
+    # id : integer 자동으로 정의(Primary Key)
+    # id = models.AutoField(primary_key=True) -> Integer 값이 자동으로 하나씩 증가(AUTOINCREMENT)
     # CharField - 필수인자로 max_lengh 지정
     title = models.CharField(max_length=10)
     content = models.TextField()
@@ -66,9 +111,20 @@ class Article(models.Model):
     #   auto_not : 수정시마다 자동으로 저장
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'<{self.id}> {self.title}'
+
+# models.py : python 클래스 정의
+#           : 모델 설계도
+# makemigrations : migration 파일 생성
+#                : DB 설계도
+# migrate : migration 파일 DB 반영
 ```
 
 2. makemigrations(마이그레이션 파일 생성)
+
+   `0001_.py`, `0002_.py` 등 마이그레이션 할 때 마다 생겨남
 
 ```bash
 $ python manage.py makemigrations
