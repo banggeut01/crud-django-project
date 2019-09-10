@@ -13,8 +13,8 @@ def new(request):
     return render(request, 'articles/new.html')
 
 def create(request):
-    title = request.GET.get('title')
-    content = request.GET.get('content')
+    title = request.POST.get('title')
+    content = request.POST.get('content')
     article = Article.objects.create(title=title, content=content)
     # article = Article.objects.create(title=title, content=content).id
     # context = {
@@ -45,8 +45,8 @@ def edit(request, article_pk):
     return render(request, 'articles/edit.html', context)
 
 def update(request, article_pk):
-    title = request.GET.get('title')
-    content = request.GET.get('content')
+    title = request.POST.get('title')
+    content = request.POST.get('content')
     article = Article.objects.get(pk=article_pk)
     article.title = title
     article.content = content
