@@ -1,7 +1,7 @@
 {% extends 'articles/base.html' %}
 {% block body %}
 <h1 class="text-center">게시판에 오신걸 환영합니다.</h1>
-<a class="btn btn-primary" href="/articles/new/" role="button">글 작성하기</a>
+<a class="btn btn-primary" href="{% url 'articles:new' %}" role="button">글 작성하기</a>
 <table class="table mt-5">
   <thead>
     <tr>
@@ -14,7 +14,7 @@
   <tr>
     <th scope="row">{{ article.id}}</th>
     <td>
-      <a href="/articles/{{ article.pk }}/">
+      <a href="{% url 'articles:detail' article.pk %}">
         {{ article.title }}
       </a>
     </td>

@@ -1,7 +1,7 @@
 {% extends 'articles/index.html' %}
 {% block body %}
 <h1>글 작성하기</h1>
-<form action="/articles/create/" method="GET">
+<form action="{% url 'articles:create' %}" method="GET">
   <div class="form-group">
     <label for="exampleInputEmail1">제목</label>
     <input type="text" class="form-control" id="exampleInputEmail1" placeholder="제목을 입력하세요." name="title">
