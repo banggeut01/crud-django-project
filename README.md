@@ -834,5 +834,8 @@ $ python manage.py createsuperuser
 }
 ```
 
-## 3. 게시판 꾸미기
+## Django messages framework
 
+* [참고링크](https://docs.djangoproject.com/en/2.2/ref/contrib/messages/)
+
+* ex) github에서 클릭시 한번만 뜨는 메시지 창

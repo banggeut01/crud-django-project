@@ -87,3 +87,11 @@ def comment_create(request, article_pk):
     content = request.POST.get('content')
     Comment.objects.create(content=content, article_id=article_pk)
     return redirect('articles:detail', article_pk)
+
+@require_POST 
+# 인자 3개 일 때 : (request, comment_pk, article_pk)
+def comment_delete(request, comment_pk):
+    comment = Comment.objects.get(pk=comment_pk)
+    article_pk = comment.article_id
+    comment.delete()
+    return redirect('articles:detail', article_pk)    
