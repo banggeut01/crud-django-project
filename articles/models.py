@@ -25,3 +25,7 @@ class Article(models.Model):
 #                : DB 설계도
 # migrate : migration 파일 DB 반영
 
+class Comment(models.Model):
+    content = models.CharField(max_length=140)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+
