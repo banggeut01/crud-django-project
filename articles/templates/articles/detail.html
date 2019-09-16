@@ -6,6 +6,22 @@
 <p>수정일자 : {{ article.updated_at }}</p>
 <hr>
 <p>{{ article.content }}</p>
+<hr>
+<h3>댓글</h3>
+{% for comment in comments %}
+<p>{{ comment.content }}</p>
+<hr>
+{% empty %}
+<p>작성된 댓글이 없습니다.</p>
+{% endfor %}
+<hr>
+<h3>html에서 comment_set.all로 접근하기</h3>
+<h3>첫번째 값은 comment.0</h3>
+<h3>두번째 값은 comment.1</h3>
+{% for comment in article.comment_set.all %}
+<li>{{ comment.content }}</li>
+<hr>
+{% endfor %}
 <a href="{% url 'articles:index' %}">목록으로</a>
 <!-- <a href="{% url 'articles:delete' article.pk %}">X</a> -->
 <form action="{% url 'articles:delete' article.pk %}" method="POST" onclick="return confirm('정말로 삭제하시겠습니까?')">
@@ -16,8 +32,10 @@
 <a href="{% url 'articles:update' article.pk %}">수정하기!</a>
 <hr>
 <h3>댓글 작성</h3>
-<form action="/article/{{article.pk}}/comment_create/" method="POST">
-  <input type="text">
+<h4>댓글 수 : {{ comments.count }}</h4>
+<form action="/articles/{{article.pk}}/comment_create/" method="POST">
+  {% csrf_token %}
+  <input type="text" name="content">
   <input type="submit" value="얍~!">
 </form>
 {% endblock %}

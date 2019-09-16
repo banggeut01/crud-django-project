@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
 # from IPython import embed
 
-from .models import Article
+from .models import Article, Comment
 
 # Create your views here.
 def index(request):
@@ -33,8 +34,10 @@ def create(request):
 def detail(request, article_pk):
     # 단일 데이터 조회
     article = Article.objects.get(id=article_pk)
+    comments = article.comment_set.all()
     context = {
-        'article': article
+        'article': article,
+        'comments': comments
     }
     return render(request, 'articles/detail.html', context)
 
@@ -70,3 +73,17 @@ def update(request, article_pk):
         'article': article
         }
         return render(request, 'articles/edit.html', context)
+
+@require_POST # POST로 넘어왔을 때만 실행!, import해주기 
+def comment_create(request, article_pk):
+    # article = Article.objects.get(pk=article_pk)
+    # comment = Comment() => import 주의!
+    # comment.content = request.POST.get('content')
+
+    # comment.article = article => 안하면 error
+    # or comment.article_id = article_pk
+
+    # comment.save()
+    content = request.POST.get('content')
+    Comment.objects.create(content=content, article_id=article_pk)
+    return redirect('articles:detail', article_pk)
