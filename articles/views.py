@@ -20,7 +20,7 @@ def index(request):
 def create(request):
     # POST 요청 -> 검증 및 저장
     if request.method == 'POST':
-        article_form = ArticleForm(request.POST)
+        article_form = ArticleForm(request.POST) # request.POST 사용자가 입력한 내용
         # embed()
         # 검증에 성공하면 저장하고,
         if article_form.is_valid(): # 중요한 로직!
@@ -62,12 +62,12 @@ def delete(request, article_pk):
 
 def update(request, article_pk):
     article = Article.objects.get(pk=article_pk)
-    if request.method == 'POST':
-        article_form = ArticleForm(request.POST, instance=article) # 수정하려는 인스턴스 넣어주기!
+    if request.method == 'POST': # 수정한 내용 저장할 때 POST
+        article_form = ArticleForm(request.POST, instance=article) # 수정하려는 인스턴스 - article 넣어주기!
         if article_form.is_valid():
             article = article_form.save()
             return redirect('articles:detail', article.pk)
-    else:
+    else: # 수정버튼 눌렀을 때 수정화면으로 가는 것 GET
         article_form = ArticleForm(instance=article) # 수정하려는 인스턴스 넣어주기!
     context = {
         'article_form': article_form
