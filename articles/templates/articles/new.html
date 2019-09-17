@@ -14,4 +14,12 @@
   </div>
   <button type="submit" class="btn btn-primary">등록하기!</button>
 </form>
+
+<form action="" method="POST">
+  {% csrf_token %}
+  <!-- p태그로 form을 작성해보겠다는 뜻 -->
+  {{ article_form.as_p }} 
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
 {% endblock %}

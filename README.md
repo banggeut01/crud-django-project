@@ -837,5 +837,53 @@ $ python manage.py createsuperuser
 ## Django messages framework
 
 * [참고링크](https://docs.djangoproject.com/en/2.2/ref/contrib/messages/)
-
+  * you need to display a one-time notification message...
+  * 한번만 메시지를 띄울 때 쓰인다.
+* Flesh message라고도 불림
 * ex) github에서 클릭시 한번만 뜨는 메시지 창
+
+## Article Form
+
+### Ipython embed
+
+* views.py
+
+  ```python
+  def create(request):
+      if request.method == 'POST':
+          article_form = ArticleForm(request.POST)
+          embed()
+  ```
+
+  * ipython
+
+    ```shell
+    In [1]: article_form
+    Out[1]: <ArticleForm bound=True, valid=Unknown, fields=(title;content)>
+    
+    In [2]: request.POST
+    Out[2]: <QueryDict: {'csrfmiddlewaretoken': ['qLtNIER8GAD5H3g3tgsrPPYCekif0O5H4Bg7XNKNSFsC393GfDK2fTKt7dFk36mF'], 'title': ['aa'], 'content': ['dfd']}>
+    
+    In [3]: type(article_form)
+    Out[3]: articles.forms.ArticleForm
+    
+    In [5]: article_form.is_valid()
+    Out[5]: True
+    # 값 확인가능
+    In [6]: article_form.cleaned_data
+    Out[6]: {'title': 'aa', 'content': 'dfd'}
+    ```
+
+* 페이지 검사하기 > title input `required`지우고 빈칸으로 넘긴 후 ipython실행
+
+  * ipython
+
+    ```shell
+    In [1]: article_form
+    Out[1]: <ArticleForm bound=True, valid=Unknown, fields=(title;content)>
+    
+    In [2]: article_form.is_valid()
+    Out[2]: False
+    ```
+
+    

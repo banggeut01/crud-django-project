@@ -27,8 +27,9 @@
 <hr>
 {% endfor %}
 <a href="{% url 'articles:index' %}">목록으로</a>
-<!-- <a href="{% url 'articles:delete' article.pk %}">X</a> -->
-<!-- 인자 2개일 때 : {% url 'articles:delete' article.pk comment.pk %} -->
+<!-- 주석 {# #} -->
+<!-- <a href="{# url 'articles:delete' article.pk #}">X</a> -->
+<!-- 인자 2개일 때 : {# url 'articles:delete' article.pk comment.pk #} -->
 <form action="{% url 'articles:delete' article.pk %}" method="POST" onclick="return confirm('정말로 삭제하시겠습니까?')">
   {% csrf_token %}
   <input type="submit" value="삭제">
