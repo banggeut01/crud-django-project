@@ -886,4 +886,20 @@ $ python manage.py createsuperuser
     Out[2]: False
     ```
 
-    
+## Model Form
+
+* models.py에서 정의한 모델 스키마 그대로 가져옴
+
+* `forms.py` 예시
+
+  ```python
+  from django import forms
+  from .models import Article # model import
+  
+  class ArticleForm(forms.ModelForm):
+      class Meta: # meta 클래스 정의
+          model = Article
+          fields = '__all__' # 모든 필드
+  ```
+
+  

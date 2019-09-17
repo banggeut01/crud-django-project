@@ -24,10 +24,11 @@ def create(request):
         # embed()
         # 검증에 성공하면 저장하고,
         if article_form.is_valid(): # 중요한 로직!
-            title = article_form.cleaned_data.get('title')
-            content = article_form.cleaned_data.get('content')
-            article = Article(title=title, content=content)
-            article.save()
+            # title = article_form.cleaned_data.get('title')
+            # content = article_form.cleaned_data.get('content')
+            # article = Article(title=title, content=content)
+            # article.save()
+            article = article_form.save()
             # redirect
             return redirect('articles:detail', article.pk)
         # else:
@@ -62,23 +63,13 @@ def delete(request, article_pk):
 def update(request, article_pk):
     article = Article.objects.get(pk=article_pk)
     if request.method == 'POST':
-        article_form = ArticleForm(request.POST)
+        article_form = ArticleForm(request.POST, instance=article) # 수정하려는 인스턴스 넣어주기!
         if article_form.is_valid():
-            article.title = article_form.cleaned_data.get('title')
-            article.content = article_form.cleaned_data.get('content')
-            article = Article(title=title, content=content)
-            article.save()
+            article = article_form.save()
             return redirect('articles:detail', article.pk)
     else:
-        article_form = ArticleForm(
-            # placeholder 기능
-            initial={
-                'title': article.title,
-                'content': article.content
-            }
-        )
+        article_form = ArticleForm(instance=article) # 수정하려는 인스턴스 넣어주기!
     context = {
-        'article': article,
         'article_form': article_form
     }
     return render(request, 'articles/form.html', context)
