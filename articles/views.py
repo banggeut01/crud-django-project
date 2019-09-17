@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from IPython import embed
 from django.contrib import messages # message framwork
@@ -46,7 +46,7 @@ def create(request):
 
 def detail(request, article_pk):
     # 단일 데이터 조회
-    article = Article.objects.get(id=article_pk)
+    article = get_object_or_404(Article, pk=article_pk) # 없으면 404 에러, 안해주면 500error가 뜬다.
     comments = article.comment_set.all()
     context = {
         'article': article,
