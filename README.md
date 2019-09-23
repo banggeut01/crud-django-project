@@ -970,3 +970,35 @@ $ python manage.py createsuperuser
 
   settings.py에서 설정한 url이 보여지는 것이다.
 
+## Django imagekit
+
+> djnago에서 이미지를 관리하는 kit
+>
+> 썸네일 지정 등이 가능하다.
+
+* 설치
+
+  ```
+  $ pip install django-imagekit
+  ```
+
+* INSTALLED_APPS에 `imagekit`추가
+
+* models.py
+
+  ```python
+  from imagekit.processors import ResizeToFill
+  from imagekit.models import ProcessedImageField
+  
+  class Article(models.Model):
+      ...
+      # 이미지 썸네일
+  	image_thumbnail = ProcessedImageField(
+          blank=True,
+          processors=[ResizeToFill(300, 300)],
+          format='JPG',
+          options={'quality': 80}
+      )
+  ```
+
+  
