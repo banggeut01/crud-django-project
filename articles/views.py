@@ -17,6 +17,10 @@ def index(request):
 # def new(request):
 #     return render(request, 'articles/new.html')
 
+
+# 1. Form을 주는 과정 (GET)
+# 2. DB에 저장하는 동작 (POST)
+# 두개의 동작을 하나의 URL로 관리할 수 있다.
 def create(request):
     # POST 요청 -> 검증 및 저장
     if request.method == 'POST':
@@ -33,9 +37,12 @@ def create(request):
             return redirect('articles:detail', article.pk)
         # else:
         #   다시 폼으로 돌아가 -> 중복되서 제거!
+        #   검증 실패시,
+        #   사용자가 입력한 값(request.POST)를 article_form으로 넘겨준다.
+        #   만약 넘겨주지 않으면, 검증실패시 작성했던 내용이 사라진다.
     # GET 요청이면
     else:
-        # Form으로 돌아가기
+        # GET 요청 -> Form
         article_form = ArticleForm()
     # GET -> 비어있는 Form context
     # POST -> 검증 실패시 에러메시지와 입력값 채워진 context
@@ -47,6 +54,7 @@ def create(request):
 def detail(request, article_pk):
     # 단일 데이터 조회
     article = get_object_or_404(Article, pk=article_pk) # 없으면 404 에러, 안해주면 500error가 뜬다.
+    # pk값이 없어서 뜨는 error는 404에러이다.
     comments = article.comment_set.all()
     context = {
         'article': article,

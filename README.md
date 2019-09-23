@@ -888,6 +888,13 @@ $ python manage.py createsuperuser
 
 ## Model Form
 
+* 왜 쓰일까?
+
+  * DRY(Don't repeat yourself) : 반복하지 말아라
+  * KISS(Keep ti samll and simple, short) : 간단하게!
+  * 이미 모델에서 정의했었다. 중복돼서 정의하지 않고도 간결하게 사용할 수 있다.
+  * form을 더 효율적으로 관리하기 위해 쓰인다.
+
 * models.py에서 정의한 모델 스키마 그대로 가져옴
 
 * `forms.py` 예시
