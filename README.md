@@ -917,3 +917,56 @@ $ python manage.py createsuperuser
 * base.html 에 넣으면 안된다.
 * 사용되는 그 html에 넣어야 한다.
 * 상속과 관련이 있는 extend는 가장 첫째줄에 넣어야한다.
+
+## Static, media
+
+장고에서는 두가지 파일이 있다.
+
+* Static
+
+  * css, js, ima파일
+
+* media
+
+  * 사용자 업로드한 파일
+
+* static 파일의 경로
+
+  * `settings.py`
+
+  ```python
+  STATICFILES_DIRS =  [
+      os.path.join(BASE_DIR, 'crud', 'assets')
+  ]
+  ```
+  * `base.html`
+
+  ```html
+  <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+  ```
+
+  상대경로를 적어준 것이다.
+
+  settings.py 로부터 이어진 경로
+
+  만약 `os.path.join(BASE_DIR, 'crud')`라면 경로는 `'assets/bootstrap ... '`이런식으로 써야한다.
+
+* `settings.py`
+
+  * 웹브라우저 소스보기
+
+  ```python
+  <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+  ```
+
+  ```python
+  # settings.py
+  STATIC_URL = '/static/'
+  ```
+
+  브라우저에서 소스보기 하면 /static/ url이 붙는다.
+
+  이것은 물리적으로 static파일을 의미하는 것이 아니다.
+
+  settings.py에서 설정한 url이 보여지는 것이다.
+
