@@ -909,4 +909,11 @@ $ python manage.py createsuperuser
           fields = '__all__' # 모든 필드
   ```
 
-  
+
+
+
+## html; load
+
+* base.html 에 넣으면 안된다.
+* 사용되는 그 html에 넣어야 한다.
+* 상속과 관련이 있는 extend는 가장 첫째줄에 넣어야한다.

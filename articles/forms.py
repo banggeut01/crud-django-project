@@ -1,5 +1,5 @@
 from django import forms
-from .models import Article
+from .models import Article, Comment
 
 class ArticleForm(forms.ModelForm):
     # model = Article -> 클래스 변수로 선언되어버림
@@ -38,6 +38,12 @@ class ArticleForm(forms.ModelForm):
         #         }
         #     )
         # }
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('content', ) # 지정 필드만 보여줌
+        # exclude = ('article', ) 지정 필드 제외하고 나머지 보여줌
 
 
 # class ArticleForm(forms.Form):

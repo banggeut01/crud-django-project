@@ -3,7 +3,7 @@ from django.views.decorators.http import require_POST
 from IPython import embed
 from django.contrib import messages # message framwork
 from .models import Article, Comment
-from .forms import ArticleForm
+from .forms import ArticleForm, CommentForm
 
 # Create your views here.
 def index(request):
@@ -56,9 +56,11 @@ def detail(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk) # 없으면 404 에러, 안해주면 500error가 뜬다.
     # pk값이 없어서 뜨는 error는 404에러이다.
     comments = article.comment_set.all()
+    comment_form = CommentForm()
     context = {
         'article': article,
-        'comments': comments
+        'comments': comments,
+        'comment_form': comment_form
     }
     return render(request, 'articles/detail.html', context)
 
@@ -84,17 +86,26 @@ def update(request, article_pk):
 
 @require_POST # POST로 넘어왔을 때만 실행!, import해주기 
 def comment_create(request, article_pk):
-    # article = Article.objects.get(pk=article_pk)
+    article = get_object_or_404(Article, pk=article_pk)
+    # 1. modelform에 사용자 입력값 넣고
+    comment_form = CommentForm(request.POST)
+    # 2. 검증하고,
+    if comment_form.is_valid():
+    # 3. 맞으면 저장!
+        comment = comment_form.save(commit=False)
+        comment.article = article
+        comment_form.save()
+    # 4. return redirect
+    else:
+        messages.success(request, '댓글이 형식에 맞지 않습니다.')
+    return redirect('articles:detail', article_pk)
+
     # comment = Comment() => import 주의!
     # comment.content = request.POST.get('content')
-
     # comment.article = article => 안하면 error
     # or comment.article_id = article_pk
-
     # comment.save()
-    content = request.POST.get('content')
-    Comment.objects.create(content=content, article_id=article_pk)
-    return redirect('articles:detail', article_pk)
+    # return redirect('articles:detail', article_pk)
 
 @require_POST 
 # 인자 3개 일 때 : (request, comment_pk, article_pk)

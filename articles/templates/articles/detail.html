@@ -1,4 +1,5 @@
 {% extends 'articles/base.html' %}
+{% load bootstrap4 %}
 {% block body %}
 <h1>{{ article.id }}번 글</h1>
 <h2>{{ article.title }}</h2>
@@ -39,9 +40,11 @@
 <hr>
 <h3>댓글 작성</h3>
 <h4>댓글 수 : {{ comments.count }}</h4>
-<form action="{% url 'articles:comment_create' article.pk %}" method="POST">
+<form action="{% url 'articles:comment_create' article.pk %}" method="POST" class="form">
   {% csrf_token %}
-  <input type="text" name="content">
-  <input type="submit" value="얍~!">
+  {% bootstrap_form comment_form %}
+  {% buttons %}
+  <button type="submit" class="btn btn-primary">Submit</button>
+  {% endbuttons %}
 </form>
 {% endblock %}
