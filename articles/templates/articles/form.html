@@ -7,7 +7,7 @@
 <h1 class="text-center">글 수정하기</h1>
 {% endif %}
 <!-- action="" : 빈칸이면 자기 자신에게! -->
-<form action="" method="POST" class="form">
+<form action="" method="POST" class="form" enctype="multipart/form-data">
   {% csrf_token %}
   {% bootstrap_form article_form %}
   {% buttons %}

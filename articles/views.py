@@ -24,7 +24,7 @@ def index(request):
 def create(request):
     # POST 요청 -> 검증 및 저장
     if request.method == 'POST':
-        article_form = ArticleForm(request.POST) # request.POST 사용자가 입력한 내용
+        article_form = ArticleForm(request.POST, request.FILES) # request.POST 사용자가 입력한 내용
         # embed()
         # 검증에 성공하면 저장하고,
         if article_form.is_valid(): # 중요한 로직!

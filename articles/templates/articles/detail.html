@@ -3,6 +3,9 @@
 {% block body %}
 <h1>{{ article.id }}번 글</h1>
 <h2>{{ article.title }}</h2>
+{% if article.image %}
+  <img src="{{ article.image.url }}" alt="{{ article.image.name }}" width="500">
+{% endif %}
 <p>작성일자 : {{ article.created_at }}</p>
 <p>수정일자 : {{ article.updated_at }}</p>
 <hr>
