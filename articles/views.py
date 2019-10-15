@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from IPython import embed
 from django.contrib import messages # message framwork
+from django.contrib.auth.decorators import login_required
 from .models import Article, Comment
 from .forms import ArticleForm, CommentForm
+
 
 # Create your views here.
 def index(request):
@@ -21,6 +23,7 @@ def index(request):
 # 1. Form을 주는 과정 (GET)
 # 2. DB에 저장하는 동작 (POST)
 # 두개의 동작을 하나의 URL로 관리할 수 있다.
+@login_required
 def create(request):
     # POST 요청 -> 검증 및 저장
     if request.method == 'POST':
@@ -50,7 +53,7 @@ def create(request):
         'article_form': article_form
     }
     return render(request, 'articles/form.html', context)
-
+    
 def detail(request, article_pk):
     # 단일 데이터 조회
     article = get_object_or_404(Article, pk=article_pk) # 없으면 404 에러, 안해주면 500error가 뜬다.

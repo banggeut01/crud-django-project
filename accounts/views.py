@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 # AuthenticationForm 인증과 관련된 폼
 from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
 
 # Create your views here.
 def signup(request):
+    if request.user.is_authenticated:
+        return redirect('articles:index')
     if request.method == 'POST':
         user_form = UserCreationForm(request.POST)
         if user_form.is_valid():
@@ -29,3 +32,7 @@ def login(request):
         'form': form
     }
     return render(request, 'accounts/login.html', context)
+
+def logout(request):
+    auth_logout(request)
+    return redirect('articles:index')
