@@ -1002,3 +1002,42 @@ $ python manage.py createsuperuser
   ```
 
 * 썸네일 저장할 때 db에 이미지 따로, 썸네일 따로 저장하는 것이 아니라 썸네일을 사용했을 때, 캐시 폴더에 따로 썸네일이 저장된다.
+
+## 회원가입
+
+* app 만들기 및 초기 설정
+
+  ```
+  1. accounts app 생성
+  $ python manage.py startapp accounts
+  2. settings.py 에 app 추가
+  3. urls.py 설정
+  4. accounts urls.py 생성
+  urls
+  ```
+
+* UserCreationForm 사용
+
+  ```python
+  # views.py
+  from django.contrib.auth.forms import UserCreationForm
+  ```
+
+  * [django github - UserCreationForm](https://github.com/django/django/blob/master/django/contrib/auth/forms.py)
+    * form 코드 
+  * 비밀번호
+    * 예전 md5 사용
+      * 해시값을 사용해 암호화
+      * 복호화 가능
+    * 현재, md5 사용하지 않음
+
+*  HTTP 특징
+
+  * Stateless
+  * Conectless
+
+* 쿠키, 세션
+
+  * 쿠키(클라이언트) : 장바구니, 오늘 하루 보지 않기(만료기간 하루)
+  * 세션(서버) : 민감한 정보들
+    * 장바구니 세션을 활용하지 않는 이유 : 서버에 대한 부담
