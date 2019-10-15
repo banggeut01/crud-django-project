@@ -1041,3 +1041,19 @@ $ python manage.py createsuperuser
   * 쿠키(클라이언트) : 장바구니, 오늘 하루 보지 않기(만료기간 하루)
   * 세션(서버) : 민감한 정보들
     * 장바구니 세션을 활용하지 않는 이유 : 서버에 대한 부담
+
+* 로그인과 관련된 모든 정보는 request에 있다.
+
+  * context로 넘겨주지 않아도 된다.
+
+  * `base.html`
+
+    * 아래와 같이 쓰임
+
+    ```html
+    <li class="nav-item">
+      <a class="nav-link">{{ user.username }}</a>
+    </li>
+    ```
+
+    
