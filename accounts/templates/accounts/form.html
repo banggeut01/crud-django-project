@@ -3,9 +3,9 @@
 {% block body %}
 <form action="" method="POST" class="form">
   {% csrf_token %}
-  {% bootstrap_form user_form %}
+  {% bootstrap_form form %}
   {% buttons %}
-    <button type="submit" class="btn btn-primary">회원가입</button>
+    <button type="submit" class="btn btn-primary">완료</button>
   {% endbuttons %}
 </form>
 {% endblock %}

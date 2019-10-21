@@ -1050,6 +1050,7 @@ $ python manage.py createsuperuser
   ```
 
   * [django github - UserCreationForm](https://github.com/django/django/blob/master/django/contrib/auth/forms.py)
+    * **팁)** chrome Octotree 깔면 github에서 파일 트리구조로 볼 수 있음!
     * form 코드 
   * 비밀번호
     * 예전 md5 사용
@@ -1082,4 +1083,105 @@ $ python manage.py createsuperuser
     </li>
     ```
 
+* 장고에는 user가 구현되어 있다.
+
+  * ipython에서 확인하기
+
+    * ipython 접속
+
+      ```shell
+      $ python manage.py shell_plus
+      ```
+
+    * User확인하기
+
+      ```python
+      In [1]: User
+      Out[1]: django.contrib.auth.models.User
+      # mro() : 클래스를 상속했을 때 메서드가 어떤 방식으로 실행되는지 알 수 있음
+      In [2]: User.mro()
+      Out[2]: 
+      [django.contrib.auth.models.User,
+       django.contrib.auth.models.AbstractUser,
+       django.contrib.auth.base_user.AbstractBaseUser,
+       django.contrib.auth.models.PermissionsMixin,
+       django.db.models.base.Model,
+       object]
+      ```
+
+      
+
+  * `models.Model`
+
+  * `AbstrackBaseUser`(`models.Model` 상속) : 비밀번호 로그인 시점
+
+  * `AbstrackUser`(`AbstrackBaseUser` 상속) : username, first_name, last_name, email
+
+  * `User`(`AbstrackUser` 상속) 
+
+  * `UserCreationForm`(`User` 상속)
+
+  * 로그인이 되어있는 정보는 `request`에 담겨있다.
+
+    * 쿠키, 세션 활용
+    * 쿠키 > 사용중인 쿠키 > 만료 : 정보를 언제까지 저장할지 나타나있음
+
+  * [django messages framework](https://docs.djangoproject.com/en/2.2/ref/contrib/messages/)
+
+    * 쓰임새, 개념 익히기
+    * FallbackStorage : 쿠키스토리지 쓰다가 세션스토리지를 사용함
+    * CookieStorage 
+
+### 추가정보 받기
+
+* 사용자 이름, 비밀번호 외에 다른 정보 받기
+
+* `AbstrackUser`에서 확인해보면 email 등 다른 정보도 정의되어 있다.
+
+* `UserChangeForm` 활용하기
+
+  * [github 링크](https://github.com/django/django/blob/master/django/contrib/auth/forms.py)
+
+  * forms.py 를 만드는데 `UserChangeForm`상속해서 사용하면 된다.
+
+    ```python
+    from django.contrib.auth.forms import UserChangeForm
+    from django.contrib.auth import get_user_model
     
+    class CustomUserChangeForm(UserChangeForm):
+        class Meta:
+            model = get_user_model()
+            fields = ('username', 'first_name', 'last_name')
+    ```
+
+    * get_user_model : `user`클래스를 상속받아 나만의 user class로 활용할 때 사용
+
+      어디에 있을지 모르기 때문에 get_user_model로 가져온다.
+
+      유저모델 class를 반환
+
+    * [github - User class](https://github.com/django/django/blob/master/django/contrib/auth/models.py)
+
+  * [django - login_required](https://docs.djangoproject.com/en/2.2/topics/auth/default/)
+
+    * 만약, 로그인 되어있지 않다면 `settings.login_URL`로 가도록 되어있다.
+
+      ```
+      LOGIN_URL
+      Default: '/accounts/login/'
+      ```
+
+      * 다른 경로로 가게 하려면, settings.py에서 설정해준다.
+
+        ```python
+        # settings.py
+        LOGIN_URL = '/다른경로/' 
+        ```
+
+* 비밀번호 수정
+
+  * `PasswordChangeForm` 사용
+  * 인자 첫번째에는 무조건 `user`가 위치해야함
+  * 수정하면, 로그인이 풀림 -> 세션
+    * 로그인 유지하기
+      * `update_session_auth_hash` 활용
