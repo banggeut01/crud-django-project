@@ -559,6 +559,32 @@ $ python manage.py migrate
 
 * django app - `articles` (보통 app이름은 복수형으로)
 
+* settings.py
+
+  * 언어, 시간 설정
+
+    ```python
+    LANGUAGE_CODE = 'ko-kr'
+    
+    TIME_ZONE = 'Asia/Seoul'
+    
+    USE_I18N = True
+    # 한글로 보여지게 함
+    # 국제화
+    
+    USE_L10N = True
+    # 지역화
+    
+    USE_TZ = True 
+    # 데이터베이스에선 실제 한국시간으로 저장하는 것이 아님!
+    # 국제 시간으로 저장 후 TIME_ZONE 기준으로 출력하여 보여줌
+    # 만약, 한국시간으로 저장하려면 USE_TZ = False
+    ```
+
+    
+
+  
+
 ## 2. Model 설정
 
 ### 1. `Article` 모델 정의
