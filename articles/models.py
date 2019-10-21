@@ -1,6 +1,7 @@
 from django.db import models
 from imagekit.processors import ResizeToFill
 from imagekit.models import ProcessedImageField, ImageSpecField
+from django.conf import settings
 # Crud 구성요소 (1) model: 데이터베이스 모델링 할 수 있는 공간
 
 
@@ -31,7 +32,9 @@ class Article(models.Model):
     #   auto_not : 수정시마다 자동으로 저장
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # settings.py.AUTH_USER_MODEL : 'accounts.USER' (str)
+    
     def __str__(self):
         return f'<{self.id}> {self.title}'
 

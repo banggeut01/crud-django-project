@@ -146,3 +146,4 @@ MEDIA_URL = '/media/'
 
 # AUTH
 LOGIN_URL = '/accounts/login/' # default! @required_login
+AUTH_USER_MODEL = 'accounts.User' # default: 'auth.user'

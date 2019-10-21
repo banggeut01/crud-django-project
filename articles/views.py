@@ -35,7 +35,9 @@ def create(request):
             # content = article_form.cleaned_data.get('content')
             # article = Article(title=title, content=content)
             # article.save()
-            article = article_form.save()
+            article = article_form.save(commit=False)
+            article.user = request.user 
+            article.save()
             # redirect
             return redirect('articles:detail', article.pk)
         # else:
@@ -63,7 +65,8 @@ def detail(request, article_pk):
     context = {
         'article': article,
         'comments': comments,
-        'comment_form': comment_form
+        'comment_form': comment_form,
+        'image': article.image
     }
     return render(request, 'articles/detail.html', context)
 

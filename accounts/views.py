@@ -5,18 +5,24 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, Pass
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from .forms import CustomUserChangeForm
+from .forms import CustomUserChangeForm, CustomUserCreationForm
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+
+# 아래 두개는 같다.
+# from accounts.models import User
+# from django.contrib.auth import get_user_model
+
 # Create your views here.
 def signup(request):
     if request.user.is_authenticated:
         return redirect('articles:index')
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('articles:index')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     context = { # 검증 실패 => 사용자가 입력한 내용 그대로, GET 요청 => 입력 form
         'form': form
     }

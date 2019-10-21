@@ -5,7 +5,13 @@
   {% csrf_token %}
   {% bootstrap_form form %}
   {% buttons %}
-    <button type="submit" class="btn btn-primary">완료</button>
+  {% if request.resolver_match.url_name == 'signup' %}
+  <button type="submit" class="btn btn-primary">회원가입</button>
+  {% elif request.resolver_match.url_name == 'update' %}
+  <button type="submit" class="btn btn-primary">수정하기</button>
+  {% elif request.resolver_match.url_name == 'password' %}
+  <button type="submit" class="btn btn-primary">비밀번호 변경</button>
+  {% endif %}
   {% endbuttons %}
 </form>
 {% endblock %}

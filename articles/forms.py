@@ -28,7 +28,8 @@ class ArticleForm(forms.ModelForm):
     )
     class Meta: # meta 클래스 정의
         model = Article
-        fields = '__all__' # 모든 필드
+        exclude = ('user',) 
+        # fields = '__all__' # 모든 필드
 
         # 위젯 설정 방법 2
         # widgets = {
