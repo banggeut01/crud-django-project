@@ -1551,3 +1551,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 ```
 
+# http 상태코드(300, 400, 500 알아두기)
+
+* 300대 : redirect 오류
+  * 302 : 사용자가 

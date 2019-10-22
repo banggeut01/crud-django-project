@@ -3,6 +3,7 @@
 {% block body %}
 <h1>{{ article.id }}번 글</h1>
 <h2>{{ article.title }}</h2>
+<h3>작성자 : {{ article.user }}</h3>
 {% if image %}
   <img src="{{ image.url }}" alt="{{ image.name }}" width="500">
 {% endif %}
@@ -12,12 +13,24 @@
 <p>{{ article.content }}</p>
 <hr>
 <h3>댓글</h3>
-{% for comment in comments %}
-<p>{{ comment.content }}</p>
+{% if user.is_authenticated %}
+<form action="{% url 'articles:comment_create' article.pk %}" method="POST" class="form">
+  {% csrf_token %}
+  {% bootstrap_form comment_form %}
+  {% buttons %}
+  <button type="submit" class="btn btn-primary">댓글 작성</button>
+  {% endbuttons %}
+</form>
+{% endif %}
+<h4>댓글 수 : {{ comments.count }}</h4>
+{% for comment in article.comment_set.all %}
+<p><b>{{ comment.user.username }}</b> {{ comment.content }}</p>
+{% if comment.user == user %}
 <form action="{% url 'articles:comment_delete' comment.pk %}" method="POST" onclick="return confirm('정말로 삭제하시겠습니까?')">
   {% csrf_token %}
   <input type="submit" value="댓글 삭제">
 </form>
+{% endif %}
 <hr>
 {% empty %}
 <p>작성된 댓글이 없습니다.</p>
@@ -34,20 +47,12 @@
 <!-- 주석 {# #} -->
 <!-- <a href="{# url 'articles:delete' article.pk #}">X</a> -->
 <!-- 인자 2개일 때 : {# url 'articles:delete' article.pk comment.pk #} -->
+{% if article.user == user %}
 <form action="{% url 'articles:delete' article.pk %}" method="POST" onclick="return confirm('정말로 삭제하시겠습니까?')">
   {% csrf_token %}
   <input type="submit" value="삭제">
 </form>
 <!-- articles/ 이런식으로 슬래쉬 안하면 상대경로로 됨 주의! -->
-<a href="{% url 'articles:update' article.pk %}">수정하기!</a>
-<hr>
-<h3>댓글 작성</h3>
-<h4>댓글 수 : {{ comments.count }}</h4>
-<form action="{% url 'articles:comment_create' article.pk %}" method="POST" class="form">
-  {% csrf_token %}
-  {% bootstrap_form comment_form %}
-  {% buttons %}
-  <button type="submit" class="btn btn-primary">Submit</button>
-  {% endbuttons %}
-</form>
+  <a href="{% url 'articles:update' article.pk %}">수정하기!</a>
+{% endif %}
 {% endblock %}

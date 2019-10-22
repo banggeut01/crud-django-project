@@ -70,42 +70,54 @@ def detail(request, article_pk):
     }
     return render(request, 'articles/detail.html', context)
 
+from django.core.exceptions import PermissionDenied
+
 @require_POST
 def delete(request, article_pk):
-    article = Article.objects.get(pk=article_pk)
-    article.delete()    
-    return redirect('articles:index')
+    article = get_object_or_404(Article, pk=article_pk)
+    if article.user == request.user:
+        article.delete()    
+        return redirect('articles:index')
+    else:
+        raise PermissionDenied
 
 def update(request, article_pk):
-    article = Article.objects.get(pk=article_pk)
-    if request.method == 'POST': # 수정한 내용 저장할 때 POST
-        article_form = ArticleForm(request.POST, instance=article) # 수정하려는 인스턴스 - article 넣어주기!
-        if article_form.is_valid():
-            article = article_form.save()
-            return redirect('articles:detail', article.pk)
-    else: # 수정버튼 눌렀을 때 수정화면으로 가는 것 GET
-        article_form = ArticleForm(instance=article) # 수정하려는 인스턴스 넣어주기!
-    context = {
-        'article_form': article_form
-    }
-    return render(request, 'articles/form.html', context)
+    article = get_object_or_404(Article, pk=article_pk)
+    if article.user == request.user:
+        if request.method == 'POST': # 수정한 내용 저장할 때 POST
+            article_form = ArticleForm(request.POST, instance=article) # 수정하려는 인스턴스 - article 넣어주기!
+            if article_form.is_valid():
+                article = article_form.save()
+                return redirect('articles:detail', article.pk)
+        else: # 수정버튼 눌렀을 때 수정화면으로 가는 것 GET
+            article_form = ArticleForm(instance=article) # 수정하려는 인스턴스 넣어주기!
+        context = {
+            'article_form': article_form
+        }
+        return render(request, 'articles/form.html', context)
+    else:
+        raise PermissionDenied
 
+@login_required
 @require_POST # POST로 넘어왔을 때만 실행!, import해주기 
 def comment_create(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
-    # 1. modelform에 사용자 입력값 넣고
-    comment_form = CommentForm(request.POST)
-    # 2. 검증하고,
-    if comment_form.is_valid():
-    # 3. 맞으면 저장!
-        comment = comment_form.save(commit=False)
-        comment.article = article
-        comment_form.save()
-    # 4. return redirect
+    if article.user == request.user:
+        # 1. modelform에 사용자 입력값 넣고
+        comment_form = CommentForm(request.POST)
+        # 2. 검증하고,
+        if comment_form.is_valid():
+        # 3. 맞으면 저장!
+            comment = comment_form.save(commit=False)
+            comment.article = article
+            comment.user = request.user
+            comment.save()
+        # 4. return redirect
+        else:
+            messages.success(request, '댓글이 형식에 맞지 않습니다.')
+        return redirect('articles:detail', article_pk)
     else:
-        messages.success(request, '댓글이 형식에 맞지 않습니다.')
-    return redirect('articles:detail', article_pk)
-
+        raise PermissionDenied
     # comment = Comment() => import 주의!
     # comment.content = request.POST.get('content')
     # comment.article = article => 안하면 error
@@ -113,14 +125,19 @@ def comment_create(request, article_pk):
     # comment.save()
     # return redirect('articles:detail', article_pk)
 
+from django.http import HttpResponseForbidden
 @require_POST 
 # 인자 3개 일 때 : (request, comment_pk, article_pk)
 def comment_delete(request, comment_pk):
-    comment = Comment.objects.get(pk=comment_pk)
-    article_pk = comment.article_id
-    comment.delete()
-    # 길게
-    # messages.add_message(request, messages.INFO, '댓글이 삭제되었습니다.')
-    # 짧게
-    messages.info(request, '댓글이 삭제되었습니다.')
-    return redirect('articles:detail', article_pk)    
+    comment = get_object_or_404(Comment, pk=comment_pk)
+    if comment.user == request.user:
+        article_pk = comment.article_id
+        comment.delete()
+        # 길게
+        # messages.add_message(request, messages.INFO, '댓글이 삭제되었습니다.')
+        # 짧게
+        messages.info(request, '댓글이 삭제되었습니다.')
+        return redirect('articles:detail', article_pk)    
+    else:
+        return HttpResponseForbidden()
+        # raise PermissionDenied과 같음
