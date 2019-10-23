@@ -98,11 +98,11 @@ def update(request, article_pk):
     else:
         raise PermissionDenied
 
-@login_required
+from django.http import HttpResponseForbidden, HttpResponse
 @require_POST # POST로 넘어왔을 때만 실행!, import해주기 
 def comment_create(request, article_pk):
-    article = get_object_or_404(Article, pk=article_pk)
-    if article.user == request.user:
+    if request.user.is_authenticated:
+        article = get_object_or_404(Article, pk=article_pk)
         # 1. modelform에 사용자 입력값 넣고
         comment_form = CommentForm(request.POST)
         # 2. 검증하고,
@@ -117,7 +117,7 @@ def comment_create(request, article_pk):
             messages.success(request, '댓글이 형식에 맞지 않습니다.')
         return redirect('articles:detail', article_pk)
     else:
-        raise PermissionDenied
+        return HttpResponse('Unauthored', status=401)
     # comment = Comment() => import 주의!
     # comment.content = request.POST.get('content')
     # comment.article = article => 안하면 error
@@ -142,7 +142,13 @@ def comment_delete(request, comment_pk):
         return HttpResponseForbidden()
         # raise PermissionDenied과 같음
 
+# 주의! @required_POST하면 안된다. 
+# 로그인 안한 상태에서 좋아요 누르면 -> 로그인 화면이 뜬다. -> 로그인하는 순간 login 실행 후 redirect하게 되는데
+# get 요청으로 해당하는 url로 가기 때문에 HTTP ERROR 405에러가 뜬다. 
+# post로 redirect할 수 없다!
 @login_required
+# 로그인이 되어있지 않다면 객체가 아니다. => 로그인 하지 않은채로 좋아요 누르면 오류발생
+# 로그인이 되어있다면 user 객체
 def like(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
     if request.user in article.like_users.all():
