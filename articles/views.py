@@ -141,3 +141,18 @@ def comment_delete(request, comment_pk):
     else:
         return HttpResponseForbidden()
         # raise PermissionDenied과 같음
+
+@login_required
+def like(request, article_pk):
+    article = get_object_or_404(Article, pk=article_pk)
+    if request.user in article.like_users.all():
+    # if article.like_users.filter(id=request.user.id).exist():  # => get은 오류를 발생시킴
+    # 좋아요를 누른적이 있다면?
+        request.user.like_articles.remove(article)
+        # article.like_users.remove(request.user)
+        # 좋아요 취소 로직
+    # 아니면
+    else:
+        request.user.like_articles.add(article)
+        # 좋아요 로직
+    return redirect('articles:detail', article_pk)

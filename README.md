@@ -1554,4 +1554,83 @@ from django.views.decorators.http import require_POST
 # http 상태코드(300, 400, 500 알아두기)
 
 * 300대 : redirect 오류
-  * 302 : 사용자가 
+  * 302 : 사용자가 요청한 주소가 아닌 주소로 redirect 되었을 때 발생함
+    * `@required_POST` 
+
+# 프로필 보이기(Gravatar)
+
+> MTV 중에 V에서 처리할 것 같지만 T에서 처리하여 쓰는 것이 좋음
+
+## md5로 암호화
+
+* `templatestags/__init__.py` 만들기
+
+* Ipython 실행 후 암호화
+
+  ```python
+  In [10]: import hashlib
+  
+  In [11]: hashlib.md5(email.strip().lower().encode('utf-8')).hexdigest()
+  Out[11]: 'c7ca4d4bac8a294e74aa197419b11401'
+  ```
+
+* `templatestags/gravatar.py`작성
+
+  ```python
+  import hashlib
+  from django import template
+  
+  register = template.library()
+  
+  @register.filter
+  def makehash(email):
+      return hashlib.md5(email.strip().lower().encode('utf-8')).hexdigest()
+  ```
+
+  
+
+* `base.html`에 추가
+
+  ```html
+  {% load gravatar %} <!-- gravatar import라는 뜻이다. -->
+  <img src="{{ user.email|makehash }}" alt="">
+  ```
+
+  `user.email`을 인자로 넘겨주고 `gravatar`의 `makehash`를 return함
+
+# 좋아요 기능 추가
+
+* `models.py`
+
+  ```python
+  class Article(models.Model):
+  ...
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  like_users = models.ManyToManyField(
+                                  settings.AUTH_USER_MODEL,
+                                  related_name='like_articles',
+                                  blank=True
+                                  )
+  ```
+
+  * 만약, related_name을 하지 않으면 user에서 articles를 역참조할 때 articles와 like_articles 두개가 충돌
+
+``` python
+user.like_articles.all() # related_name (M2M)
+# => Queryset (Article instance 담겨있는)
+user.article_set.all() # related_name x (FK 1:N)
+# => Queryset (Article instance 담겨있는)
+article.user # FK (1:N)
+# => User instance
+article.like_users.all() # M2M
+# => Queryset (User instance 담겨있는)
+```
+
+```python
+<p>{{ article.like_users.count }}명이 이 글을 좋아합니다.</p>
+<p>댓글 수 : {{ article.comment_set.all.count }}</p>
+```
+
+
+
+* Naming convention 잘 지키자

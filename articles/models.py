@@ -34,7 +34,14 @@ class Article(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     # settings.py.AUTH_USER_MODEL : 'accounts.USER' (str)
-    
+    like_users = models.ManyToManyField(
+                                settings.AUTH_USER_MODEL,
+                                related_name='like_articles',
+                                blank=True
+                                )
+    # !!! 중요!!! 만약, related_name을 하지 않으면 user에서 articles를 역참조할 때
+    # articles와 like_articles 두개가 충돌
+
     def __str__(self):
         return f'<{self.id}> {self.title}'
 

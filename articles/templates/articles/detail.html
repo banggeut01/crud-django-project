@@ -11,6 +11,13 @@
 <p>수정일자 : {{ article.updated_at }}</p>
 <hr>
 <p>{{ article.content }}</p>
+<p>{{ article.like_users.count }}명이 이 글을 좋아합니다.</p>
+<a href="{% url 'articles:like' article.pk %}">
+  {% if user in article.like_users.all %}
+  좋아요취소</a>
+  {% else %}
+  좋아요
+  {% endif %}
 <hr>
 <h3>댓글</h3>
 {% if user.is_authenticated %}
@@ -23,6 +30,7 @@
 </form>
 {% endif %}
 <h4>댓글 수 : {{ comments.count }}</h4>
+<h4>위와 동일 : {{ article.comments_set.all.count %}</h4>
 {% for comment in article.comment_set.all %}
 <p><b>{{ comment.user.username }}</b> {{ comment.content }}</p>
 {% if comment.user == user %}
