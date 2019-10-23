@@ -1,0 +1,37 @@
+{% extends 'articles/base.html' %}
+{% load bootstrap4 %}
+{% block body %}
+{% if user == user_profile %}
+  <h1>
+      <i class="fas fa-grin-tongue-wink animated infinite bounce delay-2s"></i>
+    <i class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
+    {{ user_profile.username }}의 프로필
+    <i class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
+  </h1>
+  <h2>내가 쓴 글({{ user_profile.article_set.all.count }})</h2>
+    {% for article in user_profile.article_set.all %}
+      <a href="{% url 'articles:detail' article.pk %}">
+        <p>{{ article.title }} : {{ article.content }}</p>
+      </a>
+    {% endfor %}
+    <hr>
+    <h2>내가 작성한 댓글({{ user_profile.comment_set.all.count }})</h2>
+    {% for comment in user_profile.comment_set.all %}
+      <p>
+        <a href="{% url 'articles:detail' comment.article_id %}">
+          {{ comment.article_id }}글의 {{ comment.content}}
+        </a>
+      </p>
+    {% endfor %}
+    <hr>
+    <h2> 좋아요한 글({{ user_profile.like_articles.all.count }})</h2>
+    {% for article in user_profile.like_articles.all %}
+      <p>
+        <a href="{% url 'articles:detail' article.pk %}">
+          {{ article.title }} : {{ article.content }}
+        </a>
+      <p>
+    {% endfor %}
+{% endif %}
+{% endblock %}
+

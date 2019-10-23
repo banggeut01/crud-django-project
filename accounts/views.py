@@ -76,3 +76,15 @@ def password_change(request):
         'form': form
     }
     return render(request, 'accounts/form.html', context)
+
+
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+def profile(request, account_pk):
+    # user = User.objects.get(pk=account_pk)
+    User = get_user_model() # 클래스 반환
+    user = get_object_or_404(User, pk=account_pk) # 객체 반환
+    context = {
+        'user_profile': user,
+    }
+    return render(request, 'accounts/profile.html', context)
