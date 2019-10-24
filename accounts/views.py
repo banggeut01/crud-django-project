@@ -88,3 +88,18 @@ def profile(request, account_pk):
         'user_profile': user,
     }
     return render(request, 'accounts/profile.html', context)
+
+def follow(request, account_pk):
+    User = get_user_model()
+    obama = get_object_or_404(User, pk=account_pk)
+    if obama != request.user:
+        # obama를 팔로우 한적이 있다면
+        if request.user in obama.followers.all():
+        # if obama in request.user.followings.all():
+            obama.followers.remove(request.user)
+            # 취소
+        # 아니면
+        else:
+            # 팔로우
+            obama.followers.add(request.user)
+    return redirect('accounts:profile', account_pk)

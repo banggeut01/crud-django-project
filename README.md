@@ -1634,3 +1634,30 @@ article.like_users.all() # M2M
 
 
 * Naming convention 잘 지키자
+
+# 팔로윙, 팔로워
+
+* user model
+
+  ```python
+  # accounts/models.py
+  from django.db import models
+  from django.conf import settings
+  from django.contrib.auth.models import AbstractUser
+  # Create your models here.
+  class User(AbstractUser):
+      followers = models.ManyToManyField(
+          settings.AUTH_USER_MODEL,
+          related_name='followings',
+          blank=True
+      )
+  ```
+
+  * db에는 `id`와 `from_user_id`, `to_user_id` 필드가 생겼다.
+
+# 해쉬태그
+
+* Article, HashTag는 좋아요와 다르게 Article을 생성할 때(Create view) HashTag를 검색하여 관계설정이 된다.
+* HashTag를 직접 찾아서 저장해야함.
+* 로직이 좋아요보다 복잡함.
+* 

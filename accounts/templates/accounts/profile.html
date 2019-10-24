@@ -1,13 +1,26 @@
 {% extends 'articles/base.html' %}
 {% load bootstrap4 %}
 {% block body %}
+<h1>
+  <i class="fas fa-grin-tongue-wink animated infinite bounce delay-2s"></i>
+  <i class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
+  {{ user_profile.username }}의 프로필
+  <i class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
+  {% with user_profile.followers.all as followers %}
+</h1>
+<a href="{% url 'accounts:follow' user_profile.pk %}">
+  {% if user in followers %}
+    팔로우 취소
+  {% else %}
+    팔로우
+  {% endif %}
+</a>
+<h2>팔로우 : {{ user_profile.followings.all.count }}</h2>
+<h2>팔로워 : {{ user_profile.followers.all }}</h2>
+<h2>팔로워 : {{ followers|length }}</h2>
+{% endwith %}
+
 {% if user == user_profile %}
-  <h1>
-      <i class="fas fa-grin-tongue-wink animated infinite bounce delay-2s"></i>
-    <i class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
-    {{ user_profile.username }}의 프로필
-    <i class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
-  </h1>
   <h2>내가 쓴 글({{ user_profile.article_set.all.count }})</h2>
     {% for article in user_profile.article_set.all %}
       <a href="{% url 'articles:detail' article.pk %}">
