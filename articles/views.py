@@ -3,7 +3,7 @@ from django.views.decorators.http import require_POST
 from IPython import embed
 from django.contrib import messages # message framwork
 from django.contrib.auth.decorators import login_required
-from .models import Article, Comment
+from .models import Article, Comment, HashTag
 from .forms import ArticleForm, CommentForm
 
 
@@ -38,6 +38,13 @@ def create(request):
             article = article_form.save(commit=False)
             article.user = request.user 
             article.save()
+            # 해시태그 저장 및 연결 작업 => 여기서 하는 이유 article의 pk를 알아야하기 때문!
+            for word in article.content.split():
+                if word.startswith('#'): # if word[0] == '#':
+                    # 해시태그에 있으면 해당 pk값을
+                    # if tag in article.hashtags.all():
+                    hashtag, created = HashTag.objects.get_or_create(content=word)
+                    article.hashtags.add(hashtag)
             # redirect
             return redirect('articles:detail', article.pk)
         # else:
@@ -88,6 +95,15 @@ def update(request, article_pk):
             article_form = ArticleForm(request.POST, instance=article) # 수정하려는 인스턴스 - article 넣어주기!
             if article_form.is_valid():
                 article = article_form.save()
+                # 해시태그 수정
+                article.hashtags.clear() # M:N 관계에서 해당하는 값 지울 때
+                # create와 동일한 부분
+                for word in article.content.split():
+                    if word.startswith('#'): # if word[0] == '#':
+                        # 해시태그에 있으면 해당 pk값을
+                        # if tag in article.hashtags.all():
+                        hashtag, created = HashTag.objects.get_or_create(content=word)
+                        article.hashtags.add(hashtag)
                 return redirect('articles:detail', article.pk)
         else: # 수정버튼 눌렀을 때 수정화면으로 가는 것 GET
             article_form = ArticleForm(instance=article) # 수정하려는 인스턴스 넣어주기!
@@ -162,3 +178,10 @@ def like(request, article_pk):
         request.user.like_articles.add(article)
         # 좋아요 로직
     return redirect('articles:detail', article_pk)
+
+def hashtag(request, hashtag_pk):
+    hashtag = get_object_or_404(HashTag, pk=hashtag_pk)
+    context = {
+        'hashtag': hashtag
+    }
+    return render(request, 'articles/hashtag.html', context)

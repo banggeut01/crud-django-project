@@ -1634,6 +1634,7 @@ article.like_users.all() # M2M
 
 
 * Naming convention 잘 지키자
+* (darw.io)[draw.io] 활용하기 (좋아요 하트 버튼)
 
 # 팔로윙, 팔로워
 
@@ -1658,6 +1659,105 @@ article.like_users.all() # M2M
 # 해쉬태그
 
 * Article, HashTag는 좋아요와 다르게 Article을 생성할 때(Create view) HashTag를 검색하여 관계설정이 된다.
+
 * HashTag를 직접 찾아서 저장해야함.
+
 * 로직이 좋아요보다 복잡함.
-* 
+
+* `articles/models.py`
+
+  ```python
+  class HashTag(models.Model):
+      content = models.TextField(unique=True)
+      # 내용은 유일한 값을 가져야 한다.
+      def __str__(self):
+          return self.content
+      
+  class Article(models.Model):
+      ...
+      hashtags = models.ManyToManyField(
+                                  HashTag,
+                                  blank=True
+                                  )
+  ```
+
+  * content는 unique한 값을 갖는다.
+
+* `article/views.py`
+
+  * `get_or_create()`
+    * (object, created) 반환
+    * 해당 값을 가진 오브젝트가 있으면 object와 created=False 반환
+    * 없으면, 생성된 object와 created=True 반환
+    
+* `create`
+  
+      ```python
+      @login_required
+      def create(request):
+          if request.method == 'POST':
+              article_form = ArticleForm(request.POST, request.FILES)
+              if article_form.is_valid(): 
+                  article = article_form.save(commit=False)
+                  article.user = request.user 
+                  article.save()
+                  # 해시태그 저장 및 연결 작업 => 여기서 하는 이유 article의 pk를 알아야하기 때문!
+                  for word in article.content.split():
+                      if word.startswith('#'): # if word[0] == '#':
+                          # 해시태그에 있으면 해당 pk값을
+                          # if tag in article.hashtags.all():
+                          hashtag, created = HashTag.objects.get_or_creage(content=word)
+                          article.hashtags.add(hashtag)
+                  # redirect
+                  return redirect('articles:detail', article.pk)
+          else:
+      ...
+    ```
+      
+  * `update`
+  
+      ```python
+      def update(request, article_pk):
+          article = get_object_or_404(Article, pk=article_pk)
+          if article.user == request.user:
+              if request.method == 'POST':
+                  article_form = ArticleForm(request.POST, instance=article)
+                  if article_form.is_valid():
+                      article = article_form.save()
+                      # 해시태그 수정
+                      article.hashtags.clear() # M:N 관계에서 해당하는 값 지울 때
+                      # create와 동일한 부분
+                      for word in article.content.split():
+                          if word.startswith('#'):
+                              hashtag, created = HashTag.objects.get_or_creage(content=word)
+                              article.hashtags.add(hashtag)
+                      return redirect('articles:detail', article.pk)
+      ...
+      ```
+  
+* 태그에 링크달기
+
+  * `articles/hashtag.py`
+
+  ```html
+  안녕하세요 #강다니엘 #사랑해요 아아아
+  안녕하세요 <a href="">#강다니엘</a> <a href="">#사랑해요</a> 아아아
+  ```
+
+  ```python
+  from django import template
+  
+  register = template.Library()
+  
+  @register.filter
+  def make_link(article):
+      content = article.content
+      hashtags = article.hashtags.all()
+      
+      for hashtag in hashtags:
+          content = content.replace(hashtag.content, 
+          f'<a href="/hashtags/{hashtag.pk}/"> {hashtag.content} </a>')
+      return content
+  ```
+
+  

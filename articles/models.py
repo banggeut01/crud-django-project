@@ -11,6 +11,12 @@ from django.conf import settings
 # db 테이블을 정의하고,
 # 각각의 컬럼(필드) 정의
 
+class HashTag(models.Model):
+    content = models.TextField(unique=True)
+    # 내용은 유일한 값을 가져야 한다.
+    def __str__(self):
+        return self.content
+
 class Article(models.Model):
     # id : integer 자동으로 정의(Primary Key)
     # id = models.AutoField(primary_key=True) -> Integer 값이 자동으로 하나씩 증가(AUTOINCREMENT)
@@ -41,7 +47,11 @@ class Article(models.Model):
                                 )
     # !!! 중요!!! 만약, related_name을 하지 않으면 user에서 articles를 역참조할 때
     # articles와 like_articles 두개가 충돌
-
+    hashtags = models.ManyToManyField(
+                                HashTag,
+                                related_name='articles',
+                                blank=True
+                                )
     def __str__(self):
         return f'<{self.id}> {self.title}'
 
