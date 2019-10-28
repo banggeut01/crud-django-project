@@ -33,15 +33,22 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'accounts',
     'articles',
-    'django.contrib.admin', # admin
+    # allauth
+    'django.contrib.sites',
     'django.contrib.auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.kakao',
+    # all-auth end
+    'django.contrib.admin', # admin
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages', # messages framwork
     'django.contrib.staticfiles', # static file! css, js, image
     'django_extensions',
     'bootstrap4',
-    'imagekit'
+    'imagekit',
 ]
 
 MIDDLEWARE = [
@@ -147,3 +154,12 @@ MEDIA_URL = '/media/'
 # AUTH
 LOGIN_URL = '/accounts/login/' # default! @required_login
 AUTH_USER_MODEL = 'accounts.User' # default: 'auth.user'
+
+# django-allauth 
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SITE_ID = 1 # django.contrib.sites -> SITE_ID 부여
+LOGIN_REDIRECT_URL = 'articles:index'

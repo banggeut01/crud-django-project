@@ -1690,30 +1690,30 @@ article.like_users.all() # M2M
     * 해당 값을 가진 오브젝트가 있으면 object와 created=False 반환
     * 없으면, 생성된 object와 created=True 반환
     
-* `create`
+  * `create`
   
-      ```python
-      @login_required
-      def create(request):
-          if request.method == 'POST':
-              article_form = ArticleForm(request.POST, request.FILES)
-              if article_form.is_valid(): 
-                  article = article_form.save(commit=False)
-                  article.user = request.user 
-                  article.save()
-                  # 해시태그 저장 및 연결 작업 => 여기서 하는 이유 article의 pk를 알아야하기 때문!
-                  for word in article.content.split():
-                      if word.startswith('#'): # if word[0] == '#':
-                          # 해시태그에 있으면 해당 pk값을
-                          # if tag in article.hashtags.all():
-                          hashtag, created = HashTag.objects.get_or_creage(content=word)
-                          article.hashtags.add(hashtag)
-                  # redirect
-                  return redirect('articles:detail', article.pk)
-          else:
-      ...
+    ```python
+        @login_required
+        def create(request):
+            if request.method == 'POST':
+                article_form = ArticleForm(request.POST, request.FILES)
+                if article_form.is_valid(): 
+                    article = article_form.save(commit=False)
+                    article.user = request.user 
+                    article.save()
+                    # 해시태그 저장 및 연결 작업 => 
+                    # 여기서 하는 이유 article의 pk를 알아야하기 때문!
+                    for word in article.content.split():
+                        if word.startswith('#'): # if word[0] == '#':
+                            # 해시태그에 있으면 해당 pk값을
+                            # if tag in article.hashtags.all():
+                            hashtag, created = HashTag.objects.get_or_creage(content=word)
+                            article.hashtags.add(hashtag)
+                    # redirect
+                    return redirect('articles:detail', article.pk)
+            else:
     ```
-      
+  
   * `update`
   
       ```python
@@ -1758,6 +1758,239 @@ article.like_users.all() # M2M
           content = content.replace(hashtag.content, 
           f'<a href="/hashtags/{hashtag.pk}/"> {hashtag.content} </a>')
       return content
+  ```
+
+# 리눅스 프로세스 죽이기 팁
+
+```shell
+ps aux
+kill [PID]
+```
+
+# 카카오 로그인
+
+* 소셜 로그인(OAuth - 인증체계)
+  * ex) 카카오 로그인, 페이스북 로그인 등
+  * 인증체계란 제 3자(카카오)
+
+[카카오 개발자 링크](https://developers.kakao.com/)
+
+* 기존 방법
+
+  ```
+  로그인시
+  사용자 ->/<- django 서버 (요청 응답)
+  ```
+
+* 변경
+
+  ```
+  로그인시
+  1. 사용자 ->/<- django 서버 (요청) 
+  2. 사용자 ->/<- 카카오 (kakao 로그인)
+  3. kakao ->/<- django 서버 (토큰)
+  ```
+
+* django allauth 이용
+
+  * authentication(인증 - 로그인)
+  * authorization(권한 - 로그인 이후)
+  * [django - allauth 공식문서](https://django-allauth.readthedocs.io/en/latest/installation.html)
+  * 카카오 기능 contribution되어있음
+
+## django 실습
+
+* allauth 설치 및 패키지 목록 저장
+
+  ```shell
+  $ pip install django-allauth
+  $ pip freeze > requirements.txt
+  ```
+
+* `settings.py` 설정
+
+  ```python
+  # 앱 추가
+  INSTALLED_APPS = [
+      # ...
+      # allauth
+      'django.contrib.sites',
+      'django.contrib.auth',
+      'allauth',
+      'allauth.account',
+      'allauth.socialaccount',
+      'allauth.socialaccount.providers.kakao',
+  ]
+  
+  AUTHENTICATION_BACKENDS = (
+      # Needed to login by username in Django admin, regardless of `allauth`
+      'django.contrib.auth.backends.ModelBackend',
+  )
+  
+  SITE_ID = 1 # django.contrib.sites -> SITE_ID 부여
+  ```
+
+* `urls.py`
+
+  ```python
+  urlpatterns = [
+      path('admin/', admin.site.urls),
+      path('articles/', include('articles.urls')),
+      path('accounts/', include('accounts.urls')),
+      # 반드시 이부분에 추가해야한다.
+      path('accounts/', include('allauth.urls')),
+      path('hashtags/<int:hashtag_pk>/', views.hashtag, name='hashtag'),
+  ]
+  ```
+
+  * 이 부분에 추가해야하는 이유
+
+    ```
+    http://127.0.0.1:8000/accounts/
+    
+    admin/
+    articles/
+    accounts/ signup/ [name='signup']
+    accounts/ login/ [name='login']
+    accounts/ logout/ [name='logout']
+    accounts/ update/ [name='update']
+    accounts/ password/ [name='password']
+    accounts/ <int:account_pk>/profile/ [name='profile']
+    accounts/ <int:account_pk>/follow/ [name='follow']
+    accounts/ ^ ^signup/$ [name='account_signup']
+    accounts/ ^ ^login/$ [name='account_login']
+    accounts/ ^ ^logout/$ [name='account_logout']
+    accounts/ ^ ^password/change/$ [name='account_change_password']
+    accounts/ ^ ^password/set/$ [name='account_set_password']
+    accounts/ ^ ^inactive/$ [name='account_inactive']
+    accounts/ ^ ^email/$ [name='account_email']
+    accounts/ ^ ^confirm-email/$ [name='account_email_verification_sent']
+    accounts/ ^ ^confirm-email/(?P<key>[-:\w]+)/$ [name='account_confirm_email']
+    accounts/ ^ ^password/reset/$ [name='account_reset_password']
+    accounts/ ^ ^password/reset/done/$ [name='account_reset_password_done']
+    accounts/ ^ ^password/reset/key/(?P<uidb36>[0-9A-Za-z]+)-(?P<key>.+)/$ [name='account_reset_password_from_key']
+    accounts/ ^ ^password/reset/key/done/$ [name='account_reset_password_from_key_done']
+    accounts/ ^social/
+    accounts/ ^kakao/
+    hashtags/<int:hashtag_pk>/ [name='hashtag']
+    ^media/(?P<path>.*)$
+    ```
+
+    * signup, login, logout이 중복된다.
+    * signup, login, logout은 내가 짰던 코드를 쓸 것이기 때문이다.
+
+* migrate
+
+  ```shell
+  $ python manage.py migrate
+  ```
+
+* 카카오 개발자에서 설정하기
+
+  * 카카오 개발자에서 앱 만들기
+  * 설정 > 일반 > 플랫폼 추가 > 웹 선택, 사이트 도메인(http://127.0.0.1:8000, https://127.0.0.1:8000) 추가
+  * 사용자 관리에서 Redirect URI를 설정
+    * 활성화 > 프로필 정보 on, 수집목적 : 로그인 입력
+    * 사용자 로그인(kakao) 후 내가 만든 사이트로 redirect하는 역할
+  * 로그인 Redirect URL에 추가
+    * http://127.0.0.1:8000/accounts/kakao/login/callback/ 추가 후 저장
+    * [링크 참고](https://django-allauth.readthedocs.io/en/latest/providers.html)
+      * Kakao - Development callback URL
+  * 설정 > 일반 > 기본 정보 > 앱키 > REST API 키 복사해두기 => HTTP
+  * 설정 > 고급 > Client Secret > 코드 생성, 상태 on, 적용 => client secret
+
+* 127.0.0.1:8000/admin 접속
+
+  * 소설 계정과 관련된 항목들이 생겨난 것을 볼 수 있다.
+
+  * 소셜 어플리케이션 선택 > 소셜 어플리케이션 추가 > 제공자: Kakao, 이름:아무거나, 클라이언트아이디 : rest api키, 비밀키: secret키 복사, example.com sites추가 > 저장
+
+    ![화면](C:\Users\student\Desktop\genie\crud-django-project\images\admin소설계정설정.png)
+
+* 카카오 로그인 추가
+
+  * [django 공식 문서 참고](https://django-allauth.readthedocs.io/en/latest/templates.html)
+
+    * Sociatl Account Tags
+
+  * `accounts/login.html`에 내용 추가
+
+    ```html
+    {% extends 'articles/base.html' %}
+    {% load bootstrap4 %}
+    {% load socialaccount %} <!-- 추가 -->
+    
+    {% block body %}
+    <form action="" method="POST" class="form">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      {% buttons %}
+        <button type="submit" class="btn btn-primary">로그인</button>
+      {% endbuttons %}
+      <!-- 추가 -->
+      <a href="{% provider_login_url 'kakao' %}">
+        카카오 로그인
+      </a>
+    </form>
+    {% endblock %}
+    ```
+
+  * 127.0.0.1:8000/accounts/login에서 카카오 로그인을 하면 page not found 404가 뜬다.
+
+    * accounts/profile로 redirect 되었기 때문이다.
+
+    * 아래와 같이 settings.py 에 추가한다.
+
+      ```python
+      LOGIN_PEDIRECT_URL = 'articles:index'
+      ```
+
+* 카카오 로그인시 프로필 보이기
+
+  ```
+  request.user.socialaccount_set.all()[0].extra_data
+  {"id": 1199359340, "properties": {"nickname": "\ubc15\uc9c4\ud76c", "profile_image": "http://k.kakaocdn.net/dn/32Djb/btqzkC0hoee/TMfRnVZd58Npe5hLDZNjs0/profile_640x640s.jpg", "thumbnail_image": "http://k.kakaocdn.net/dn/32Djb/btqzkC0hoee/TMfRnVZd58Npe5hLDZNjs0/profile_110x110c.jpg"}, "kakao_account": {"profile_needs_agreement": false, "profile": {"nickname": "\ubc15\uc9c4\ud76c", "thumbnail_image_url": "http://k.kakaocdn.net/dn/bFNT0m/btqtOutxMuG/3xUDLw92zfCVSzQLK7UI71/img_110x110.jpg", "profile_image_url": "http://k.kakaocdn.net/dn/bFNT0m/btqtOutxMuG/3xUDLw92zfCVSzQLK7UI71/img_640x640.jpg"}}
+  }
+  ```
+
+  * socialaccount_set 와 1:N
+
+  * `gravatar.py` 수정
+
+    ```python
+    import hashlib
+    from django import template
+    
+    register = template.Library()
+    
+    @register.filter
+    def makehash(user):
+        email = user.email
+        socail_user = request.user.socialaccount_set.all()[0]
+        if socail_user: # 있으면,
+            return social_user.extra_data.get('properties').get('profile_image')
+        return 'https://www.gravatar.com/avatar/' + hashlib.md5(email.strip().lower().encode('utf-8')).hexdigest()
+    ```
+
+    * 카카오 로그인시 카카오 프로필 사용, 아닐 시 gravatar 사용
+
+  ```
+  1. 사용자가 카카오링크(/accounts/kakao/login/)
+  2. 사용자는 카카오 사이트 로그인 페이지를 확인
+  3. 사용자는 로그인 정보를 카카오로 보냄
+  4. 카카오는 redirect url로 django 서버로 사용자 토큰을 보냄
+  5. 해당 토큰을 이용하여 카카오에 인증 요청
+  6. 카카오에서 확인
+  7. 로그인
+  --------------------------
+  * 토큰(access token)은 보통 유효기간이 있는데, 
+  * refresh token을 통해서 토큰 재발급을 받을 수 있다.
+  ```
+
+  ```
+  카카오 - 리소스 서버/인증 서버
+  사용자(리소스 owner) - 유저
+  django - 클라이언트
   ```
 
   
