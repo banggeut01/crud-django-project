@@ -1993,4 +1993,48 @@ kill [PID]
   django - 클라이언트
   ```
 
+# Django 검증
+
+* 시험엔 안나옴!
+
+* 예제
+
+  ```python
+  from django.db import models
+  from django.core.validators import MinValueValidator, EmailValidator
+  
+  class Person(models.Model):
+      name = models.CharField(max_length=10)
+      age = models.IntegerField(
+          validators = [MinValueValidator(20, message='미성년자 출입금지')]
+      )
+      email = models.CharField(
+          max_length=120,
+          validators = [EmailValidator(message='이메일 형식이 아닙니다.')]
+  
+  ```
+
+
+# 인스타그램 글 목록
+
+* 전체목록
+
+  /articles/ => 전체 목록
+
+  ```python
+  articles = Articles.objects.all()
+  ```
+
+* 나, 그리고 내 친구들이 작성한 글 목록
+
+  /articles/explore/ => 
+
+  * 내 팔로잉들이 작성한 것(request.user.followings)
+  * +내(request.user)가 작성한 것
+
+  ```python
+  def
+  articles = 
+  ```
+
   

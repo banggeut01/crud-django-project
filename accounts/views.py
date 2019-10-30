@@ -103,3 +103,4 @@ def follow(request, account_pk):
             # 팔로우
             obama.followers.add(request.user)
     return redirect('accounts:profile', account_pk)
+
