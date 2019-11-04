@@ -2110,3 +2110,79 @@ kill [PID]
   ```
   
   
+
+* POST 요청으로 바꾸기
+
+  ```html
+  axios.post(...)
+  	.then(...)
+  	.catch(error => {
+  		console.log(error)
+  	})
+  ```
+
+  error 가 발생한다. 아래는 브라우저 콘솔창
+
+  ```console
+  error
+  Error: Request failed with status code 403
+      at e.exports (spread.js:25)
+      at e.exports (spread.js:25)
+      at XMLHttpRequest.d.onreadystatechange (spread.js:25)
+  ```
+
+  terminal을 살펴보면
+
+  ```shell
+  Forbidden (CSRF token missing or incorrect.)
+  ```
+
+  [django AJAX 링크](https://docs.djangoproject.com/en/2.2/ref/csrf/)
+
+  * csrf token체크를 `CsrfViewMiddleware` 미들웨어가 처리하고 있다.
+
+  *  `X-CSRFToken` header 설정
+
+    * AngularJS 코드
+
+    ```shell
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    ```
+
+    * axios코드로 변형해서 봐야한다.
+
+    * [axios github](https://github.com/axios/axios)
+
+      ```
+         // `xsrfCookieName` is the name of the cookie to use as a value for xsrf token
+        xsrfCookieName: 'XSRF-TOKEN', // default
+       // `xsrfHeaderName` is the name of the http header that carries the xsrf token value
+        xsrfHeaderName: 'X-XSRF-TOKEN', // default
+      ```
+
+    * 아래와 같이 추가한다.
+
+      ```html
+      <script>
+        // POST 요청 csrftoken을 AJAX 요청시 설정하는 법
+        axios.defaults.xsrfCookieName = 'csrftoken'
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+        // django is_ajax() 분기가 되는 기준이 아래의 헤더 설정에 따라서 진행
+        axios.defaults.headers.common['X-REQUESTED-WITH'] = 'XMLHttpRequest'
+        axios.post(...){
+          .then(...)
+      }
+      </script>
+      ```
+
+      ```python
+      def like(request, article_pk):
+          if request.is_ajax(): # ajax 분기
+              # 좋아요 처리
+              return JsonResponse(context)
+          else:
+              return HttpResponseForbidden
+      ```
+
+      

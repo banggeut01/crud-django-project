@@ -168,26 +168,29 @@ from django.http import JsonResponse
 # 로그인이 되어있지 않다면 객체가 아니다. => 로그인 하지 않은채로 좋아요 누르면 오류발생
 # 로그인이 되어있다면 user 객체
 def like(request, article_pk):
-    article = get_object_or_404(Article, pk=article_pk)
-    is_liked = True
+    if request.is_ajax():
+        article = get_object_or_404(Article, pk=article_pk)
+        is_liked = True
 
-    if request.user in article.like_users.all():
-    # if article.like_users.filter(id=request.user.id).exist():  # => get은 오류를 발생시킴
-    # 좋아요를 누른적이 있다면?
-        request.user.like_articles.remove(article)
-        # article.like_users.remove(request.user)
-        # 좋아요 취소 로직
-        is_liked = False
-    # 아니면
+        if request.user in article.like_users.all():
+        # if article.like_users.filter(id=request.user.id).exist():  # => get은 오류를 발생시킴
+        # 좋아요를 누른적이 있다면?
+            request.user.like_articles.remove(article)
+            # article.like_users.remove(request.user)
+            # 좋아요 취소 로직
+            is_liked = False
+        # 아니면
+        else:
+            # 좋아요 로직
+            request.user.like_articles.add(article)
+            is_liked = True 
+        context = {
+            'is_liked': is_liked,
+            'like_count': article.like_users.count()
+        }
+        return JsonResponse(context)
     else:
-        # 좋아요 로직
-        request.user.like_articles.add(article)
-        is_liked = True 
-    context = {
-        'is_liked': is_liked,
-        'like_count': article.like_users.count()
-    }
-    return JsonResponse(context)
+        return HttpResponseForbidden
 
 def hashtag(request, hashtag_pk):
     hashtag = get_object_or_404(HashTag, pk=hashtag_pk)
