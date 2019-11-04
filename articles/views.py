@@ -158,6 +158,8 @@ def comment_delete(request, comment_pk):
         return HttpResponseForbidden()
         # raise PermissionDenied과 같음
 
+
+from django.http import JsonResponse
 # 주의! @required_POST하면 안된다. 
 # 로그인 안한 상태에서 좋아요 누르면 -> 로그인 화면이 뜬다. -> 로그인하는 순간 login 실행 후 redirect하게 되는데
 # get 요청으로 해당하는 url로 가기 때문에 HTTP ERROR 405에러가 뜬다. 
@@ -167,17 +169,25 @@ def comment_delete(request, comment_pk):
 # 로그인이 되어있다면 user 객체
 def like(request, article_pk):
     article = get_object_or_404(Article, pk=article_pk)
+    is_liked = True
+
     if request.user in article.like_users.all():
     # if article.like_users.filter(id=request.user.id).exist():  # => get은 오류를 발생시킴
     # 좋아요를 누른적이 있다면?
         request.user.like_articles.remove(article)
         # article.like_users.remove(request.user)
         # 좋아요 취소 로직
+        is_liked = False
     # 아니면
     else:
-        request.user.like_articles.add(article)
         # 좋아요 로직
-    return redirect('articles:detail', article_pk)
+        request.user.like_articles.add(article)
+        is_liked = True 
+    context = {
+        'is_liked': is_liked,
+        'like_count': article.like_users.count()
+    }
+    return JsonResponse(context)
 
 def hashtag(request, hashtag_pk):
     hashtag = get_object_or_404(HashTag, pk=hashtag_pk)

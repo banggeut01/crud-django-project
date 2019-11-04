@@ -14,13 +14,14 @@
 {% load hashtag %}
 <p>{{ article|make_link|safe }}</p>
 <p>{{ article.content }}</p>
-<p>{{ article.like_users.count }}명이 이 글을 좋아합니다.</p>
-<a href="{% url 'articles:like' article.pk %}">
-  {% if user in article.like_users.all %}
-  <i class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
-  {% else %}
-  <i class="far fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
-  {% endif %}</a>
+<p><span id="like-count">{{ article.like_users.count }}</span>명이 이 글을 좋아합니다.</p>
+
+{% if user in article.like_users.all %}
+<i id="like-button" data-id="{{article.id}}" class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
+{% else %}
+<i id="like-button" data-id="{{article.id}}" class="far fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
+{% endif %}
+
 <hr>
 <h3>댓글</h3>
 {% if user.is_authenticated %}
@@ -66,4 +67,28 @@
 <!-- articles/ 이런식으로 슬래쉬 안하면 상대경로로 됨 주의! -->
   <a href="{% url 'articles:update' article.pk %}">수정하기!</a>
 {% endif %}
+{% endblock %}
+{% block script %}
+<script>
+  const likeButton = document.querySelector('#like-button')
+  likeButton.addEventListener('click', function (event) {
+    console.log(event.target.dataset.id)
+    axios.get(`/articles/${event.target.dataset.id}/like/`)
+      .then(response => {
+        console.log(response.data.is_liked)
+        console.log(event.target)
+        const likeCount = document.querySelector('#like-count')
+        console.log(likeCount)
+        if (response.data.is_liked) {
+          event.target.classList.remove('far')
+          event.target.classList.add('fas')
+        } else {
+          event.target.classList.remove('fas')
+          event.target.classList.add('far')
+        }
+        likeCount.innerText = response.data.like_count
+        console.log(likeCount)
+      })
+  })
+</script>  
 {% endblock %}

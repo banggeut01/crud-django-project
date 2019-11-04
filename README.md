@@ -2038,3 +2038,75 @@ kill [PID]
   ```
 
   
+
+# AJAX
+
+## 좋아요 하트 처리
+
+[font awesome 링크](https://fontawesome.com/)
+
+* 기존방법(동기적 처리)
+
+  * a태그로 둘러쌓여짐
+
+    ```html
+    <a href="{% url 'articles:like' article.pk %}">
+        {% if user in article.like_users.all %}
+        <i class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
+        {% else %}
+        <i class="far fa-heart fa-2x animated infinite bounce delay-2s" style="color: black;"></i>
+        {% endif %}
+    </a>
+    ```
+
+    
+
+  1. 좋아요를 누르면
+  2. django 서버 html 문서로 응답
+  3. 브라우저 새로 열림. 새로운 html 가져옴.
+
+* AJAX(Asynchronous Javascript And Xml, 비동기식 자바스크립트와 xml)
+
+  1. 좋아요 누르면,
+  2. JS 코드, axios가 요청을 보냄
+  3. 한 화면안에서 좋아요 하트만 바뀌도록(새로 브라우저 열지 않고)
+
+* prefix로 `data-`를 쓰게 되면 `dataset`으로 가져옴
+
+  ```html
+  <i id="like-button" data-hi="hi" data-id="{{article.id}}" class="fas fa-heart fa-2x animated infinite bounce delay-2s" style="color: red;"></i>
+  ```
+
+  ```js
+  const likeButton = document.querySelector('#like-button')
+  // 이벤트 리스너 등록
+  likeButton.addEventListener('click', function (event) {
+  	console.log(event.target.dataset.id) // article.id
+  	console.log(event.target.dataset.hi) // 'hi'
+  	axios.get(`/articles/${event.target.dataset.id}/like/`)
+  		.then(response => {
+  			console.log(response)
+  		})
+  })
+  ```
+  
+  ```python
+  # views.py
+  @login_required
+  def like(request, article_pk):
+      article = get_object_or_404(Article, pk=article_pk)
+      is_liked = True
+      if request.user in article.like_users.all():
+          request.user.like_articles.remove(article)
+          is_liked = False
+      else:
+          request.user.like_articles.add(article)
+          is_liked = True 
+      context = {
+          'is_liked': is_liked,
+          'like_count': article.like_users.count()
+      }
+      return JsonResponse(context) # JSON으로 응답
+  ```
+  
+  
