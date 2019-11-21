@@ -2185,4 +2185,6 @@ kill [PID]
               return HttpResponseForbidden
       ```
 
-      
+      ```
+      (0, -1), (0, 1)
+      ```
